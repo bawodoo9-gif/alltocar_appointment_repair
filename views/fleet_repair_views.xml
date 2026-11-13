@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_fleet_repair_form_inherit_appointment" model="ir.ui.view">
+        <field name="name">fleet.repair.form.inherit.appointment</field>
+        <field name="model">fleet.repair</field>
+        <field name="inherit_id" ref="car_repair_industry.view_fleet_repair_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <field name="is_appointment_origin" invisible="1"/>
+                <field name="is_pending_reception" invisible="1"/>
+                <button name="action_confirm_physical_reception"
+                        string="Confirm Physical Reception"
+                        type="object"
+                        class="oe_highlight"
+                        attrs="{'invisible': [('is_pending_reception', '=', False)]}"
+                        help="Record actual physical vehicle arrival and verify its odometer."/>
+            </xpath>
+
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_open_business_appointment"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-calendar"
+                        attrs="{'invisible': [('appointment_id', '=', False)]}">
+                    <div class="o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="appointment_id" readonly="1" nolabel="1"/>
+                        </span>
+                        <span class="o_stat_text">Origin Appointment</span>
+                    </div>
+                </button>
+            </xpath>
+
+            <xpath expr="//div[@name='button_box']" position="after">
+                <div class="alert alert-info mb-3"
+                     role="alert"
+                     attrs="{'invisible': [('is_pending_reception', '=', False)]}">
+                    <strong>Pre-Arrival (Booked Appointment - Awaiting Physical Reception):</strong>
+                    This vehicle was booked via appointment and has not yet been physically received at the workshop.
+                    When the customer arrives, verify the actual mileage in <em>Verified Odometer</em> and click
+                    <strong>Confirm Physical Reception</strong>.
+                </div>
+                <div class="alert alert-warning mb-3"
+                     role="alert"
+                     attrs="{'invisible': [('reception_state', '!=', 'no_show')]}">
+                    <strong>Appointment Marked as Missed (No-Show):</strong>
+                    The customer did not show up during the scheduled time slot. You can reschedule or restore from the Origin Appointment.
+                </div>
+            </xpath>
+
+            <xpath expr="//field[@name='client_id']" position="after">
+                <field name="reception_state"
+                       widget="badge"
+                       decoration-info="reception_state == 'booked'"
+                       decoration-success="reception_state == 'received'"
+                       decoration-warning="reception_state == 'no_show'"
+                       decoration-danger="reception_state == 'cancelled'"/>
+                <field name="planned_start_datetime"
+                       readonly="1"
+                       attrs="{'invisible': [('is_appointment_origin', '=', False)]}"/>
+                <field name="planned_end_datetime"
+                       readonly="1"
+                       attrs="{'invisible': [('is_appointment_origin', '=', False)]}"/>
+                <field name="actual_receipt_datetime"
+                       readonly="1"
+                       attrs="{'invisible': [('is_appointment_origin', '=', False)]}"/>
+                <field name="reported_odometer"
+                       readonly="1"
+                       attrs="{'invisible': [('is_appointment_origin', '=', False)]}"/>
+                <field name="verified_odometer"
+                       attrs="{'invisible': [('is_appointment_origin', '=', False)],
+                               'readonly': [('state', '!=', 'draft')]}"/>
+                <field name="is_odometer_verified"
+                       readonly="1"
+                       attrs="{'invisible': [('is_appointment_origin', '=', False)]}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_fleet_repair_tree_inherit_appointment" model="ir.ui.view">
+        <field name="name">fleet.repair.tree.inherit.appointment</field>
+        <field name="model">fleet.repair</field>
+        <field name="inherit_id" ref="car_repair_management.view_repair_fleet_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="before">
+                <field name="is_appointment_origin" invisible="1"/>
+                <field name="appointment_id" optional="show"/>
+                <field name="planned_start_datetime" optional="show"/>
+                <field name="reception_state"
+                       optional="show"
+                       widget="badge"
+                       decoration-info="reception_state == 'booked'"
+                       decoration-success="reception_state == 'received'"
+                       decoration-warning="reception_state == 'no_show'"
+                       decoration-danger="reception_state == 'cancelled'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_fleet_repair_search_inherit_appointment" model="ir.ui.view">
+        <field name="name">fleet.repair.search.inherit.appointment</field>
+        <field name="model">fleet.repair</field>
+        <field name="inherit_id" ref="car_repair_management.view_repair_fleet_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='vehicle_id']" position="after">
+                <field name="appointment_id"/>
+            </xpath>
+            <xpath expr="//filter[@name='late_repair_delivery']" position="after">
+                <separator/>
+                <filter string="Booked / Awaiting Physical Reception"
+                        name="filter_booked_awaiting_reception"
+                        domain="[('is_appointment_origin', '=', True), ('reception_state', '=', 'booked'), ('state', '=', 'draft')]"/>
+                <filter string="Physically Received in Workshop"
+                        name="filter_physically_received"
+                        domain="[('reception_state', '=', 'received')]"/>
+                <filter string="Missed (No-Show)"
+                        name="filter_no_show"
+                        domain="[('reception_state', '=', 'no_show')]"/>
+                <filter string="Workshop Appointment Origin"
+                        name="filter_appointment_origin"
+                        domain="[('is_appointment_origin', '=', True)]"/>
+            </xpath>
+            <xpath expr="//filter[@name='groupby_state']" position="after">
+                <filter string="Reception Status"
+                        name="groupby_reception_state"
+                        context="{'group_by': 'reception_state'}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

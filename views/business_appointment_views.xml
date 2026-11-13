@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="business_appointment_view_form_inherit_repair" model="ir.ui.view">
+        <field name="name">business.appointment.view.form.inherit.repair</field>
+        <field name="model">business.appointment</field>
+        <field name="inherit_id" ref="business_appointment.business_appointment_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_open_fleet_repair"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-wrench"
+                        attrs="{'invisible': [('fleet_repair_count', '=', 0)]}">
+                    <div class="o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="fleet_repair_sequence" readonly="1"/>
+                        </span>
+                        <span class="o_stat_text">SR Order</span>
+                    </div>
+                </button>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="is_workshop_appointment" invisible="1"/>
+                <field name="fleet_repair_id" invisible="1"/>
+                <field name="fleet_repair_count" invisible="1"/>
+                <field name="booking_request_key" invisible="1"/>
+                <field name="vehicle_id"
+                       options="{'no_create': True}"
+                       domain="[('customer_id', '=', partner_id)]"
+                       attrs="{'required': [('is_workshop_appointment', '=', True)],
+                               'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
+                <field name="is_authorized_service_contact"
+                       attrs="{'invisible': [('vehicle_id', '=', False)],
+                               'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
+                <field name="last_odometer"
+                       readonly="1"
+                       attrs="{'invisible': [('vehicle_id', '=', False)]}"/>
+                <label for="current_odometer"
+                       attrs="{'invisible': [('is_workshop_appointment', '=', False), ('vehicle_id', '=', False)]}"/>
+                <div class="o_row"
+                     attrs="{'invisible': [('is_workshop_appointment', '=', False), ('vehicle_id', '=', False)]}">
+                    <field name="current_odometer"
+                           class="oe_inline"
+                           attrs="{'required': [('is_workshop_appointment', '=', True)],
+                                   'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
+                    <field name="odometer_unit" class="oe_inline" readonly="1"/>
+                </div>
+                <field name="expected_delivery_date_time"
+                       attrs="{'invisible': [('is_workshop_appointment', '=', False), ('vehicle_id', '=', False)],
+                               'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
+                <field name="sr_reception_state"
+                       widget="badge"
+                       decoration-info="sr_reception_state == 'booked'"
+                       decoration-success="sr_reception_state == 'received'"
+                       decoration-warning="sr_reception_state == 'no_show'"
+                       decoration-danger="sr_reception_state == 'cancelled'"
+                       attrs="{'invisible': [('fleet_repair_id', '=', False)]}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="business_appointment_view_tree_inherit_repair" model="ir.ui.view">
+        <field name="name">business.appointment.view.tree.inherit.repair</field>
+        <field name="model">business.appointment</field>
+        <field name="inherit_id" ref="business_appointment.business_appointment_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="vehicle_id" optional="show"/>
+                <field name="fleet_repair_id" optional="show"/>
+                <field name="sr_reception_state"
+                       optional="show"
+                       widget="badge"
+                       decoration-info="sr_reception_state == 'booked'"
+                       decoration-success="sr_reception_state == 'received'"
+                       decoration-warning="sr_reception_state == 'no_show'"
+                       decoration-danger="sr_reception_state == 'cancelled'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="business_appointment_view_search_inherit_repair" model="ir.ui.view">
+        <field name="name">business.appointment.view.search.inherit.repair</field>
+        <field name="model">business.appointment</field>
+        <field name="inherit_id" ref="business_appointment.business_appointment_view_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="vehicle_id"/>
+                <field name="fleet_repair_id"/>
+            </xpath>
+            <xpath expr="//filter[@name='planned_appointments']" position="after">
+                <separator/>
+                <filter string="Workshop Appointments"
+                        name="filter_workshop_appointments"
+                        domain="[('is_workshop_appointment', '=', True)]"/>
+                <filter string="Awaiting Physical Reception"
+                        name="filter_pending_physical_reception"
+                        domain="[('sr_reception_state', '=', 'booked'), ('state', '=', 'reserved')]"/>
+                <filter string="With Service Repair (SR)"
+                        name="filter_with_sr"
+                        domain="[('fleet_repair_id', '!=', False)]"/>
+                <filter string="Workshop Appointments Without SR (Alert)"
+                        name="filter_workshop_missing_sr"
+                        domain="[('is_workshop_appointment', '=', True), ('state', '=', 'reserved'), ('fleet_repair_id', '=', False)]"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

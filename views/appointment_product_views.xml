@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="appointment_product_view_form_inherit_repair" model="ir.ui.view">
+        <field name="name">appointment.product.form.inherit.repair</field>
+        <field name="model">appointment.product</field>
+        <field name="inherit_id" ref="business_appointment.appointment_product_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='company_id']" position="after">
+                <field name="is_workshop_service"/>
+                <field name="repair_service_type_id"
+                       options="{'no_create': True}"
+                       attrs="{'required': [('is_workshop_service', '=', True)]}"/>
+                <field name="default_expected_delivery_lead_hours"
+                       widget="float_time"
+                       attrs="{'invisible': [('is_workshop_service', '=', False)]}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="appointment_product_view_tree_inherit_repair" model="ir.ui.view">
+        <field name="name">appointment.product.tree.inherit.repair</field>
+        <field name="model">appointment.product</field>
+        <field name="inherit_id" ref="business_appointment.appointment_product_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="is_workshop_service" optional="show"/>
+                <field name="repair_service_type_id" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="appointment_product_view_search_inherit_repair" model="ir.ui.view">
+        <field name="name">appointment.product.search.inherit.repair</field>
+        <field name="model">appointment.product</field>
+        <field name="inherit_id" ref="business_appointment.appointment_product_view_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='inactive']" position="before">
+                <filter string="Workshop Services (SR)"
+                        name="filter_workshop_services"
+                        domain="['|', ('is_workshop_service', '=', True), ('repair_service_type_id', '!=', False)]"/>
+                <filter string="Workshop Without SR Mapping"
+                        name="filter_unmapped_workshop_services"
+                        domain="[('is_workshop_service', '=', True), ('repair_service_type_id', '=', False)]"/>
+                <separator/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="business_resource_type_view_form_inherit_repair" model="ir.ui.view">
+        <field name="name">business.resource.type.form.inherit.repair</field>
+        <field name="model">business.resource.type</field>
+        <field name="inherit_id" ref="business_appointment.business_resource_type_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='company_id']" position="after">
+                <field name="is_workshop_resource_type"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="business_resource_view_tree_inherit_repair" model="ir.ui.view">
+        <field name="name">business.resource.tree.inherit.repair</field>
+        <field name="model">business.resource</field>
+        <field name="inherit_id" ref="business_appointment.business_resource_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='resource_type_id']" position="after">
+                <field name="effective_employee_id" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="business_resource_view_search_inherit_repair" model="ir.ui.view">
+        <field name="name">business.resource.search.inherit.repair</field>
+        <field name="model">business.resource</field>
+        <field name="inherit_id" ref="business_appointment_hr.business_resource_view_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='material_type']" position="after">
+                <filter string="Human Resources Without Employee (Pending SR Mapping)"
+                        name="filter_unmapped_human_resources"
+                        domain="[('resource_type', '=', 'user'), ('main_resource_id', '=', False), ('employee_id', '=', False)]"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

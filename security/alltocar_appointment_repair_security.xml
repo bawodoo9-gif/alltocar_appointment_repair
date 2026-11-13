@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="group_workshop_appointment_reception" model="res.groups">
+            <field name="name">Workshop Reception (Appointment to SR)</field>
+            <field name="category_id" ref="business_appointment.module_category_business_appointment"/>
+            <field name="implied_ids" eval="[
+                (4, ref('base.group_user')),
+                (4, ref('business_appointment.group_ba_user')),
+                (4, ref('car_repair_industry.group_fleet_repair_technician'))
+            ]"/>
+        </record>
+
+        <record id="car_repair_industry.group_fleet_repair_service_manager" model="res.groups">
+            <field name="implied_ids" eval="[(4, ref('alltocar_appointment_repair.group_workshop_appointment_reception'))]"/>
+        </record>
+
+        <record id="business_appointment.group_ba_admin" model="res.groups">
+            <field name="implied_ids" eval="[(4, ref('alltocar_appointment_repair.group_workshop_appointment_reception'))]"/>
+        </record>
+    </data>
+
+    <data noupdate="1">
+        <record id="fleet_repair_workshop_reception_rule" model="ir.rule">
+            <field name="name">Workshop Reception: Fleet Repair Multi-Company Access</field>
+            <field name="model_id" ref="car_repair_industry.model_fleet_repair"/>
+            <field name="groups" eval="[(4, ref('alltocar_appointment_repair.group_workshop_appointment_reception'))]"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="business_appointment_workshop_reception_rule" model="ir.rule">
+            <field name="name">Workshop Reception: Business Appointment Multi-Company Access</field>
+            <field name="model_id" ref="business_appointment.model_business_appointment"/>
+            <field name="groups" eval="[(4, ref('alltocar_appointment_repair.group_workshop_appointment_reception'))]"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="business_appointment_core_workshop_reception_rule" model="ir.rule">
+            <field name="name">Workshop Reception: Pre-Reservation Multi-Company Access</field>
+            <field name="model_id" ref="business_appointment.model_business_appointment_core"/>
+            <field name="groups" eval="[(4, ref('alltocar_appointment_repair.group_workshop_appointment_reception'))]"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="choose_appointment_customer_form_view_inherit_repair" model="ir.ui.view">
+        <field name="name">choose.appointment.customer.form.inherit.repair</field>
+        <field name="model">choose.appointment.customer</field>
+        <field name="inherit_id" ref="business_appointment.choose_appointment_customert_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="is_workshop_booking" invisible="1"/>
+                <field name="booking_request_key" invisible="1"/>
+                <field name="vehicle_id"
+                       options="{'no_create': True}"
+                       placeholder="Select vehicle (license plate or VIN)..."
+                       domain="[('customer_id', '=', partner_id)]"
+                       attrs="{'required': [('is_workshop_booking', '=', True), ('appointment_id', '=', False)]}"/>
+                <field name="is_authorized_service_contact"
+                       attrs="{'invisible': [('vehicle_id', '=', False)]}"/>
+                <field name="last_odometer"
+                       readonly="1"
+                       attrs="{'invisible': [('vehicle_id', '=', False)]}"/>
+                <label for="current_odometer"
+                       attrs="{'invisible': [('is_workshop_booking', '=', False), ('vehicle_id', '=', False)]}"/>
+                <div class="o_row"
+                     attrs="{'invisible': [('is_workshop_booking', '=', False), ('vehicle_id', '=', False)]}">
+                    <field name="current_odometer"
+                           class="oe_inline"
+                           attrs="{'required': [('is_workshop_booking', '=', True), ('appointment_id', '=', False)]}"/>
+                    <field name="odometer_unit" class="oe_inline" readonly="1"/>
+                </div>
+                <field name="expected_delivery_date_time"
+                       attrs="{'invisible': [('is_workshop_booking', '=', False), ('vehicle_id', '=', False)],
+                               'required': [('is_workshop_booking', '=', True), ('appointment_id', '=', False)]}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
